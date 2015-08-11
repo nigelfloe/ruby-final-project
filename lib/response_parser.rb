@@ -14,7 +14,4 @@ class Parser
       end
       puts "#{business.display_phone}\n\n"
     end
-  end
-
-
-end
+  ######################################################
