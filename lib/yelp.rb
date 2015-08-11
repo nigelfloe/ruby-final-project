@@ -9,8 +9,6 @@ class YelpApi
 
   def initialize
     keys = YAML.load_file('keys.yml')
-    # binding.pry
-
     @client = Yelp::Client.new({ consumer_key: keys['CONSUMER_KEY'],
                             consumer_secret: keys['CONSUMER_SECRET'],
                             token: keys['TOKEN'],
@@ -18,3 +16,7 @@ class YelpApi
                           })
   end
 end
+
+yelp = YelpApi.new
+binding.pry
+yelp.client.search("whatever")
