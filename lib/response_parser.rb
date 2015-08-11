@@ -1,3 +1,5 @@
+# require_relative '../config/environment'
+
 class Parser
   attr_reader :response
 
@@ -5,7 +7,7 @@ class Parser
     @response = yelp_api_response
   end
 
-  def restaurant_list
+  def restaurant_list(response)
     response.businesses.each do |business|
       puts business.name
       puts "Rating: #{business.rating}"
@@ -14,4 +16,5 @@ class Parser
       end
       puts "#{business.display_phone}\n\n"
     end
-  ######################################################
+  end
+end

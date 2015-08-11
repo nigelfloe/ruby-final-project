@@ -1,9 +1,5 @@
 require_relative '../config/environment'
 
-# require 'pry'
-# require 'yaml'
-
-
 class YelpApi
   attr_reader :client
 
@@ -16,7 +12,3 @@ class YelpApi
                           })
   end
 end
-
-yelp = YelpApi.new
-binding.pry
-yelp.client.search("whatever")
