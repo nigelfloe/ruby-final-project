@@ -29,6 +29,9 @@ class CommandLine
         help
       elsif command == "exit"
         puts "Goodbye"
+      else
+        puts "Please input a valid command."
+        help
       end
     end
   end
@@ -62,20 +65,25 @@ class CommandLine
   def restaurant_list
     begin
       response = @yelp.client.search(@location, @params)
+      # binding.pry
     rescue Yelp::Error::UnavailableForLocation
       puts "Yelp has no data for that location"
     end
     if response
-      response.businesses.each do |business|
-        puts business.name
-        puts "Rating: #{business.rating}"
-        business.location.display_address.each do |line|
-          puts line
-        end
-        begin
-          puts "#{business.phone}\n\n"
-        rescue NoMethodError
-          puts "no phone number listed\n\n"
+      if response.businesses.empty?
+        puts "No Results found"
+      else
+        response.businesses.each do |business|
+          puts business.name
+          puts "Rating: #{business.rating}"
+          business.location.display_address.each do |line|
+            puts line
+          end
+          begin
+            puts "#{business.phone}\n\n"
+          rescue NoMethodError
+            puts "no phone number listed\n\n"
+          end
         end
       end
     end
