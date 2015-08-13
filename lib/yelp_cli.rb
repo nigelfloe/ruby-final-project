@@ -1,10 +1,8 @@
 require_relative '../config/environment'
-require 'pry'
 
 class CommandLine
-
   def initialize
-    @params ={limit: 5}
+    @params = {limit: 5}
   end
 
   def run_command
@@ -49,18 +47,22 @@ class CommandLine
     exit
   end
 
+  def input
+    input = gets.strip
+    exit_cli if input.downcase == "exit"
+    input
+  end
+
   def location
     puts
     puts "Where are you? (Zip code or address is best!)"
-    input = gets.strip
-    input.downcase == "exit" ? exit_cli : @location = input
+    @location = input
   end
 
   def term
     puts
     puts "What are you trying to find? (i.e.: 'restaurants', 'plumber', etc.)"
-    input = gets.strip
-    input.downcase == "exit" ? exit_cli : @params[:term] = input
+    @params[:term] = input
   end
 
   def sort
@@ -68,24 +70,24 @@ class CommandLine
     puts "How should we sort your results?"
     puts
     puts "Input 1 to sort by best match, 2 to sort by distance, or 3 to sort by highest rating"
-    input = gets.strip
-    exit_cli if input.downcase == "exit"
-    while input.to_i > 3 || input.to_i < 1
+    sort = input
+    while sort.to_i > 3 || sort.to_i < 1
       puts "Please input an integer between 1 and 3"
-      input = gets.strip
-      exit_cli if input.downcase == "exit"
+      sort = input
     end
-    @params[:sort] = input.to_i - 1
+    @params[:sort] = sort.to_i - 1
   end
 
   def yelp_search
     begin
       response = YelpApi.new.client.search(@location, @params)
     rescue Yelp::Error::UnavailableForLocation
-      puts "Yelp has no data for that location"
+      puts
+      puts Rainbow("Yelp has no data for that location").bright
     end
     if response== nil || response.total ==0
-      puts "No Results Found"
+      puts
+      puts Rainbow("No Results Found").bright
     else
       response
     end
@@ -94,10 +96,10 @@ class CommandLine
   def result_list
     @params[:offset] = 0
     response = yelp_search
-    input = nil
-    counter = 0
-    offset = 0
     if response
+      input = nil
+      counter = 0
+      offset = 0
       while input != 'exit' && offset < response.total
         response.businesses.each.with_index(1) do |business, index|
           puts
@@ -113,8 +115,8 @@ class CommandLine
           end
         end
         puts
-        puts "Showing #{5 * (counter) + 1} to #{[5 * (counter + 1), response.total].min} of #{response.total} Products."
-        puts "Type 'next' to view the next page or 'exit' to return to the main menu"
+        puts "Showing " +  Rainbow("#{5 * (counter) + 1}").bright + " to " + Rainbow("#{[5 * (counter + 1), response.total].min}").bright + " of " + Rainbow("#{response.total}") + " Products."
+        puts "Type " + Rainbow("'next'").bright.blue + " to view the next page or " + Rainbow("'exit'").bright.red + " to return to the main menu"
         input = gets.strip
         if input == "next"
           counter += 1
