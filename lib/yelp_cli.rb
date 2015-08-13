@@ -2,10 +2,8 @@ require_relative '../config/environment'
 require 'pry'
 
 class CommandLine
-  attr_accessor :location, :sort
 
   def initialize
-    @yelp = YelpApi.new
     @params ={limit: 5}
   end
 
@@ -15,22 +13,22 @@ class CommandLine
     puts
     puts "This application lets you do a simple Yelp search from your command line."
     help
-    @command=nil
-    while @command != 'exit'
-      @command = gets.downcase.strip
-      if @command == 'search'
+    command = nil
+    while command != 'exit'
+      command = gets.downcase.strip
+      if command == 'search'
         location
         term
         sort
         result_list
         help
-      elsif @command == "help"
+      elsif command == "help"
         help
-      elsif @command == "exit"
-        puts
-        puts "Goodbye"
+      elsif command == "exit"
+        exit_cli
       else
-        puts "Please input a valid command."
+        puts
+        puts Rainbow("Please input a valid command.").bright
         help
       end
     end
@@ -44,18 +42,25 @@ class CommandLine
     puts
   end
 
+  def exit_cli
+    puts
+    puts Rainbow("Goodbye!").bright.green
+    puts
+    exit
+  end
+
   def location
     puts
     puts "Where are you? (Zip code or address is best!)"
     input = gets.strip
-    input.downcase == "exit" ? exit : @location = input
+    input.downcase == "exit" ? exit_cli : @location = input
   end
 
   def term
     puts
     puts "What are you trying to find? (i.e.: 'restaurants', 'plumber', etc.)"
     input = gets.strip
-    input.downcase == "exit" ? exit : @params[:term] = input
+    input.downcase == "exit" ? exit_cli : @params[:term] = input
   end
 
   def sort
@@ -64,22 +69,18 @@ class CommandLine
     puts
     puts "Input 1 to sort by best match, 2 to sort by distance, or 3 to sort by highest rating"
     input = gets.strip
+    exit_cli if input.downcase == "exit"
     while input.to_i > 3 || input.to_i < 1
       puts "Please input an integer between 1 and 3"
       input = gets.strip
-      if input.downcase == "exit"
-        exit
-      end
+      exit_cli if input.downcase == "exit"
     end
     @params[:sort] = input.to_i - 1
   end
 
-  # def set_params(offset)
-  # end
-
   def yelp_search
     begin
-      response = @yelp.client.search(@location, @params)
+      response = YelpApi.new.client.search(@location, @params)
     rescue Yelp::Error::UnavailableForLocation
       puts "Yelp has no data for that location"
     end
