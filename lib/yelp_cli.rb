@@ -2,14 +2,11 @@ require_relative '../config/environment'
 require 'pry'
 
 class CommandLine
-  attr_accessor :location, :term, :sort, :counter, :params, :response
+  attr_accessor :location, :sort
 
   def initialize
     @yelp = YelpApi.new
-    @term = nil
-    @counter = 0
-    @offset = 0
-    @sort = 0
+    @params ={limit: 5}
   end
 
   def run_command
@@ -58,7 +55,7 @@ class CommandLine
     puts
     puts "What are you trying to find? (i.e.: 'restaurants', 'plumber', etc.)"
     input = gets.strip
-    input.downcase == "exit" ? exit : @term = input
+    input.downcase == "exit" ? exit : @params[:term] = input
   end
 
   def sort
@@ -74,12 +71,11 @@ class CommandLine
         exit
       end
     end
-    @sort = input.to_i - 1
+    @params[:sort] = input.to_i - 1
   end
 
-  def set_params(offset)
-    @params ={term: "#{@term}", limit: 5, offset: offset, sort: @sort}
-  end
+  # def set_params(offset)
+  # end
 
   def yelp_search
     begin
@@ -95,7 +91,7 @@ class CommandLine
   end
 
   def result_list
-    set_params(0)
+    @params[:offset] = 0
     response = yelp_search
     input = nil
     counter = 0
@@ -122,7 +118,7 @@ class CommandLine
         if input == "next"
           counter += 1
           offset = counter * 5
-          set_params(offset)
+          @params[:offset] = offset
           response = yelp_search
         end
       end
